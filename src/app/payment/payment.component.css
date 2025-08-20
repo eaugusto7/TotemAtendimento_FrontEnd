@@ -1,0 +1,20 @@
+.container { display:flex;justify-content:center;padding:24px; }
+.payment-card { width:100%;max-width:640px;padding:24px; }
+.total-pill { background:#e8eaf6;border-radius:999px;padding:8px 16px;display:inline-block;margin-bottom:16px; }
+.method-row { display:flex;gap:12px;margin-bottom:16px; }
+.method-row button.active { background:#e8eaf6; }
+
+.field-row { display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap; align-items:flex-end; }
+.full { flex:1; }
+.smalls .small { flex:1; min-width:100px; margin-bottom:0; }
+.small { min-width:80px; }
+
+.pix .full { margin-bottom:0; }
+
+.brands { display:flex; gap:16px; flex-wrap:wrap; }
+.brand-wrapper { display:flex; flex-direction:column; align-items:center; cursor:pointer; }
+.brand-wrapper img { width:48px; height:48px; opacity:0.6; border-radius:8px; border:2px solid transparent; transition: all .2s; }
+.brand-wrapper img.selected { opacity:1; border-color:#3f51b5; }
+.brand-label { font-size:12px; margin-top:4px; text-align:center; }
+
+.center-btn { display:flex;justify-content:center; margin-top:8px; }

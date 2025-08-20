@@ -1,0 +1,92 @@
+<div class="container">
+  <mat-card class="payment-card">
+    <h1>Pagamento</h1>
+    <form [formGroup]="paymentForm" (ngSubmit)="onSubmit()">
+
+      <div class="total-pill">
+        Total: <strong>{{ totalAmount | currency:'BRL' }}</strong>
+      </div>
+
+      <div class="method-row">
+        <button type="button" mat-stroked-button color="primary"
+                (click)="paymentForm.patchValue({method:'PIX'})"
+                [class.active]="paymentForm.value.method==='PIX'">
+          Pix
+        </button>
+        <button type="button" mat-stroked-button color="primary"
+                (click)="paymentForm.patchValue({method:'CREDIT_CARD'})"
+                [class.active]="paymentForm.value.method==='CREDIT_CARD'">
+          Crédito
+        </button>
+        <button type="button" mat-stroked-button color="primary"
+                (click)="paymentForm.patchValue({method:'DEBIT_CARD'})"
+                [class.active]="paymentForm.value.method==='DEBIT_CARD'">
+          Débito
+        </button>
+      </div>
+
+      <!-- PIX -->
+      <div *ngIf="paymentForm.value.method==='PIX'" class="field-row pix">
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Nome do Comprador</mat-label>
+          <input matInput formControlName="buyer_name" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>CPF</mat-label>
+          <input matInput formControlName="buyer_cpf" />
+        </mat-form-field>
+      </div>
+
+      <!-- CARTÕES -->
+      <div *ngIf="['CREDIT_CARD','DEBIT_CARD'].includes(paymentForm.value.method)">
+        <div class="field-row">
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Número do Cartão</mat-label>
+            <input matInput formControlName="card_number" />
+          </mat-form-field>
+        </div>
+
+        <div class="field-row">
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Nome no Cartão</mat-label>
+            <input matInput formControlName="card_holder" />
+          </mat-form-field>
+        </div>
+
+        <div class="field-row smalls">
+          <mat-form-field appearance="outline" class="small">
+            <mat-label>Mês</mat-label>
+            <input matInput formControlName="expiry_month" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="small">
+            <mat-label>Ano</mat-label>
+            <input matInput formControlName="expiry_year" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="small">
+            <mat-label>CVV</mat-label>
+            <input matInput formControlName="cvv" />
+          </mat-form-field>
+        </div>
+
+        <div class="field-row brands">
+          <div *ngFor="let b of brands" class="brand-wrapper">
+            <img 
+              [src]="b.icon" 
+              [class.selected]="paymentForm.value.brand===b.value"
+              (click)="selectBrand(b)"
+              alt="{{b.value}}"
+            />
+            <div class="brand-label">{{b.value}}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="center-btn">
+        <button mat-raised-button color="primary" type="submit"
+                [disabled]="paymentForm.invalid">
+          Pagar
+        </button>
+      </div>
+    </form>
+  </mat-card>
+</div>

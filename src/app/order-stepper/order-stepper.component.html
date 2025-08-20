@@ -1,0 +1,83 @@
+<mat-horizontal-stepper linear #stepper>
+
+  <!-- 1) Escolher Produto -->
+  <mat-step [stepControl]="productForm">
+    <ng-template matStepLabel>Escolher Produto</ng-template>
+    <div class="menu-list">
+      <div class="menu-item" *ngFor="let p of products"
+           (click)="selectProduct(p)"
+           [class.selected]="isProductSelected(p)">
+        <img class="menu-img" [src]="p.imageUrl" alt="{{p.name}}">
+        <div class="menu-info">
+          <div class="menu-title">{{ p.name }}</div>
+          <div class="menu-desc">{{ p.description }}</div>
+          <div class="menu-footer">
+            <div class="menu-price">{{ p.price | currency:'BRL' }}</div>
+            <button mat-raised-button color="primary"
+                    (click)="$event.stopPropagation(); selectProduct(p)">
+              Adicionar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="step-actions">
+      <button mat-raised-button color="primary"
+              matStepperNext [disabled]="!productForm.valid">
+        Próximo
+      </button>
+    </div>
+  </mat-step>
+
+  <!-- 2) Adicionar Extras -->
+  <mat-step [stepControl]="addonForm">
+    <ng-template matStepLabel>Adicionar Extras</ng-template>
+    <div class="menu-list small">
+      <div class="menu-item addon" *ngFor="let a of addons"
+           (click)="toggleAddon(a)"
+           [class.selected]="isAddonSelected(a)">
+        <img class="menu-img" [src]="a.imageUrl" alt="{{a.name}}">
+        <div class="menu-info">
+          <div class="menu-title">{{ a.name }}</div>
+          <div class="menu-desc">Adicional para seu lanche.</div>
+          <div class="menu-footer">
+            <div class="menu-price">+{{ a.price | currency:'BRL' }}</div>
+            <button mat-stroked-button color="primary"
+                    (click)="$event.stopPropagation(); toggleAddon(a)">
+              {{ isAddonSelected(a) ? 'Remover' : 'Adicionar' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="step-actions">
+      <button mat-button matStepperPrevious>Voltar</button>
+      <button mat-raised-button color="primary" matStepperNext>Próximo</button>
+    </div>
+  </mat-step>
+
+  <!-- 3) Revisar Sacola -->
+  <mat-step>
+    <ng-template matStepLabel>Revisar Sacola</ng-template>
+    <mat-card class="review-card">
+      <mat-card-title>Seu Pedido</mat-card-title>
+      <mat-card-content>
+        <p><strong>Produto:</strong> {{ orderService.getOrder().product?.name }}</p>
+        <p><strong>Adicionais:</strong></p>
+        <ul><li *ngFor="let ad of orderService.getOrder().addons">{{ ad.name }}</li></ul>
+        <p><strong>Total:</strong> {{ total | currency:'BRL' }}</p>
+      </mat-card-content>
+    </mat-card>
+    <div class="step-actions">
+      <button mat-button matStepperPrevious>Voltar</button>
+      <button mat-raised-button color="primary" (click)="stepper.next()">Pagamento</button>
+    </div>
+  </mat-step>
+
+  <!-- 4) Pagamento -->
+  <mat-step>
+    <ng-template matStepLabel>Pagamento</ng-template>
+    <app-payment></app-payment>
+  </mat-step>
+
+</mat-horizontal-stepper>

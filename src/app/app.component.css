@@ -1,0 +1,14 @@
+.app-toolbar {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+}
+.app-logo {
+  height: 48px;
+  margin-right: 12px;
+}
+.app-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #fff;
+}
