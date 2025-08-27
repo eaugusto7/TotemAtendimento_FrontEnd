@@ -1,83 +1,187 @@
-<mat-horizontal-stepper linear #stepper>
-
-  <!-- 1) Escolher Produto -->
+<mat-horizontal-stepper [linear]="true" #stepper>
+  <!-- STEP 1 -->
   <mat-step [stepControl]="productForm">
-    <ng-template matStepLabel>Escolher Produto</ng-template>
-    <div class="menu-list">
-      <div class="menu-item" *ngFor="let p of products"
-           (click)="selectProduct(p)"
-           [class.selected]="isProductSelected(p)">
-        <img class="menu-img" [src]="p.imageUrl" alt="{{p.name}}">
-        <div class="menu-info">
-          <div class="menu-title">{{ p.name }}</div>
-          <div class="menu-desc">{{ p.description }}</div>
-          <div class="menu-footer">
-            <div class="menu-price">{{ p.price | currency:'BRL' }}</div>
-            <button mat-raised-button color="primary"
-                    (click)="$event.stopPropagation(); selectProduct(p)">
-              Adicionar
-            </button>
+    <form [formGroup]="productForm">
+      <ng-template matStepLabel>Escolher Produto</ng-template>
+      <div class="section">
+        <h2 class="section-title">Cardápio</h2>
+        <div class="menu-list">
+          <div class="menu-item"
+               *ngFor="let p of products; trackBy: productTrackBy"
+               (click)="selectProduct(p)"
+               [class.selected]="isProductSelected(p)">
+            <img class="menu-img" [src]="p.imageUrl" [alt]="p.name" />
+            <div class="menu-info">
+              <div class="menu-title">{{ p.name }}</div>
+              <div class="menu-desc">{{ p.description }}</div>
+              <div class="menu-footer">
+                <div class="menu-price">{{ p.price | currency:'BRL' }}</div>
+                <button mat-stroked-button color="primary" type="button">Selecionar</button>
+              </div>
+            </div>
           </div>
         </div>
+        <div class="actions">
+          <button mat-raised-button color="primary" (click)="stepper.next()" [disabled]="!productForm.valid">
+            Continuar
+          </button>
+        </div>
       </div>
-    </div>
-    <div class="step-actions">
-      <button mat-raised-button color="primary"
-              matStepperNext [disabled]="!productForm.valid">
-        Próximo
-      </button>
-    </div>
+    </form>
   </mat-step>
 
-  <!-- 2) Adicionar Extras -->
+  <!-- STEP 2 -->
   <mat-step [stepControl]="addonForm">
-    <ng-template matStepLabel>Adicionar Extras</ng-template>
-    <div class="menu-list small">
-      <div class="menu-item addon" *ngFor="let a of addons"
-           (click)="toggleAddon(a)"
-           [class.selected]="isAddonSelected(a)">
-        <img class="menu-img" [src]="a.imageUrl" alt="{{a.name}}">
-        <div class="menu-info">
-          <div class="menu-title">{{ a.name }}</div>
-          <div class="menu-desc">Adicional para seu lanche.</div>
-          <div class="menu-footer">
-            <div class="menu-price">+{{ a.price | currency:'BRL' }}</div>
-            <button mat-stroked-button color="primary"
-                    (click)="$event.stopPropagation(); toggleAddon(a)">
-              {{ isAddonSelected(a) ? 'Remover' : 'Adicionar' }}
-            </button>
+    <form [formGroup]="addonForm">
+      <ng-template matStepLabel>Adicionar Extras</ng-template>
+      <div class="section">
+        <h2 class="section-title">Adicionais</h2>
+        <div class="addons-list">
+          <div class="addon-item"
+               *ngFor="let a of addons; trackBy: addonTrackBy"
+               (click)="toggleAddon(a)"
+               [class.selected]="isAddonSelected(a)">
+            <img class="addon-img" [src]="a.imageUrl" [alt]="a.name" />
+            <div class="addon-info">
+              <div class="addon-title">{{ a.name }}</div>
+              <div class="addon-desc">{{ a.description || '' }}</div>
+              <div class="addon-price">{{ a.price | currency:'BRL' }}</div>
+            </div>
           </div>
         </div>
+        <div class="actions">
+          <button mat-stroked-button color="primary" (click)="stepper.previous()">Voltar</button>
+          <button mat-raised-button color="primary" (click)="stepper.next()">Continuar</button>
+        </div>
       </div>
-    </div>
-    <div class="step-actions">
-      <button mat-button matStepperPrevious>Voltar</button>
-      <button mat-raised-button color="primary" matStepperNext>Próximo</button>
-    </div>
+    </form>
   </mat-step>
 
-  <!-- 3) Revisar Sacola -->
+  <!-- STEP 3 -->
   <mat-step>
     <ng-template matStepLabel>Revisar Sacola</ng-template>
-    <mat-card class="review-card">
-      <mat-card-title>Seu Pedido</mat-card-title>
-      <mat-card-content>
+    <div class="section">
+      <h2 class="section-title">Revisar Sacola</h2>
+      <div class="review-card">
         <p><strong>Produto:</strong> {{ orderService.getOrder().product?.name }}</p>
-        <p><strong>Adicionais:</strong></p>
-        <ul><li *ngFor="let ad of orderService.getOrder().addons">{{ ad.name }}</li></ul>
-        <p><strong>Total:</strong> {{ total | currency:'BRL' }}</p>
-      </mat-card-content>
-    </mat-card>
-    <div class="step-actions">
-      <button mat-button matStepperPrevious>Voltar</button>
-      <button mat-raised-button color="primary" (click)="stepper.next()">Pagamento</button>
+        <div *ngIf="orderService.getOrder().addons?.length">
+          <p><strong>Adicionais:</strong></p>
+          <ul class="review-addons">
+            <li *ngFor="let ad of orderService.getOrder().addons">
+              <span class="name">{{ ad.name }}</span>
+              <span class="desc" *ngIf="ad.description"> – {{ ad.description }}</span>
+              <span class="price">{{ ad.price | currency:'BRL' }}</span>
+            </li>
+          </ul>
+        </div>
+        <div class="review-total">Total: <strong>{{ total | currency:'BRL' }}</strong></div>
+      </div>
+      <div class="actions">
+        <button mat-stroked-button color="primary" (click)="stepper.previous()">Voltar</button>
+        <button mat-raised-button color="primary" (click)="stepper.next()">Ir para Pagamento</button>
+      </div>
     </div>
   </mat-step>
 
-  <!-- 4) Pagamento -->
+  <!-- STEP 4 -->
   <mat-step>
     <ng-template matStepLabel>Pagamento</ng-template>
-    <app-payment></app-payment>
-  </mat-step>
+    <div class="section">
+      <h2 class="section-title">Pagamento</h2>
 
+      <div class="total-pill">Total: <strong>{{ total | currency:'BRL' }}</strong></div>
+
+      <!-- Método -->
+      <div class="pay-methods">
+        <button mat-stroked-button [color]="paymentForm.value.method==='PIX' ? 'primary' : ''"
+                (click)="setMethod('PIX')">Pix</button>
+        <button mat-stroked-button [color]="paymentForm.value.method==='CREDIT_CARD' ? 'primary' : ''"
+                (click)="setMethod('CREDIT_CARD')">Crédito</button>
+        <button mat-stroked-button [color]="paymentForm.value.method==='DEBIT_CARD' ? 'primary' : ''"
+                (click)="setMethod('DEBIT_CARD')">Débito</button>
+      </div>
+
+      <!-- PIX -->
+      <div *ngIf="paymentForm.value.method==='PIX'" class="field-row pix" [formGroup]="paymentForm">
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Nome do Comprador</mat-label>
+          <input matInput formControlName="buyer_name" />
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>CPF</mat-label>
+          <input matInput formControlName="buyer_cpf" inputmode="numeric" />
+        </mat-form-field>
+
+        <div class="actions">
+          <button mat-stroked-button color="primary" type="button" (click)="stepper.previous()">Voltar</button>
+          <button mat-raised-button color="primary" type="button" (click)="onPayPix()" [disabled]="isPaying">
+            {{ isPaying ? 'Processando...' : 'Pagar com Pix' }}
+          </button>
+        </div>
+
+        <!-- Resultado do PIX: QR e copia-e-cola -->
+        <div class="pix-result" *ngIf="pixQrDataUrl || pixCode">
+          <div class="pix-qr" *ngIf="pixQrDataUrl">
+            <img [src]="pixQrDataUrl" alt="QR Code PIX" />
+          </div>
+          <div class="pix-code" *ngIf="pixCode">
+            <label>Código copia-e-cola:</label>
+            <textarea readonly>{{ pixCode }}</textarea>
+            <button mat-stroked-button color="primary" type="button" (click)="copyPixCode()">Copiar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cartão -->
+      <form *ngIf="paymentForm.value.method==='CREDIT_CARD' || paymentForm.value.method==='DEBIT_CARD'"
+            [formGroup]="paymentForm" class="card-form">
+
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Número do Cartão</mat-label>
+          <input matInput formControlName="card_number" inputmode="numeric" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Nome no Cartão</mat-label>
+          <input matInput formControlName="card_holder" />
+        </mat-form-field>
+
+        <div class="row3">
+          <mat-form-field appearance="outline">
+            <mat-label>Mês</mat-label>
+            <input matInput formControlName="expiry_month" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Ano</mat-label>
+            <input matInput formControlName="expiry_year" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>CVV</mat-label>
+            <input matInput formControlName="cvv" />
+          </mat-form-field>
+        </div>
+
+        <div class="brand-select">
+          <button type="button" class="brand-btn"
+                  *ngFor="let b of brands"
+                  (click)="selectBrand(b.key)"
+                  [class.selected]="paymentForm.get('brand')?.value === b.key"
+                  [attr.aria-pressed]="paymentForm.get('brand')?.value === b.key">
+            <img [src]="b.img" [alt]="b.label" />
+            <span class="sr-only">{{ b.label }}</span>
+          </button>
+        </div>
+        <input type="hidden" formControlName="brand" />
+
+        <div class="actions">
+          <button mat-stroked-button color="primary" type="button" (click)="stepper.previous()">Voltar</button>
+          <button mat-raised-button color="primary" type="button" (click)="onPayCard()" [disabled]="!paymentForm.valid || isPaying">
+            {{ isPaying ? 'Processando...' : 'Pagar' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </mat-step>
 </mat-horizontal-stepper>
